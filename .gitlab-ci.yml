@@ -1,9 +1,12 @@
 stages:
   - build
+  - test
   - publish
   - deploy
   - clean
-
+cache:
+  paths:
+    - .m2/repository
 variables:
   DOCKER_IMAGE_NAME: "namnguyen2110/test-deploy"
   DOCKER_IMAGE_TAG: "1.0"
@@ -12,16 +15,27 @@ build jar:
   image: maven:3-openjdk-11
   stage: build
   script:
-    - mvn clean package -DskipTests
+    - mvn clean package -DskipTests=true
+  cache:
+    paths:
+      - target/*.jar
   artifacts:
     paths:
       - target/*.jar
+run unit test:
+  image: maven:3-openjdk-11
+  stage: test
+  script:
+    - mvn test
 build docker file:
   image: docker:latest
   stage: publish
   services:
     - docker:dind
   script:
+    - docker build
+      --cache-from ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}
+      --tag ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} .
     - docker build -t $DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG .
     - docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
     - docker push $DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG
