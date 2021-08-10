@@ -21,7 +21,6 @@ jobs:
       - run:
           name: Build image
           command: |
-            docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
             docker build --cache-from ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} --tag ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} .
             docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
             docker push $DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG

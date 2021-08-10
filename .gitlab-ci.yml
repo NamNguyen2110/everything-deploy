@@ -13,6 +13,7 @@ variables:
   DOCKER_IMAGE_NAME: "namnguyen2110/test-deploy"
   DOCKER_IMAGE_TAG: "1.0"
   PORT: 8081
+  CONTAINER_NAME: "everything-deploy"
 build jar:
   image: maven:3-openjdk-11
   stage: build
@@ -37,24 +38,20 @@ build docker file:
       --tag ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} .
     - docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
     - docker push $DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG
-#deploy to server:
-#  image: alpine:latest
-#  stage: deploy
-#  tags:
-#    - deployment
-#  before_script:
-#    - apk add openssh-client
-#    - eval $(ssh-agent -s)
-#    - echo "$ID_RSA" | tr -d '\r' | ssh-add -
-#    - mkdir -p ~/.ssh
-#    - chmod 700 ~/.ssh
-#  script:
-#    - ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD"
-#    - ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker pull $DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG"
-#    - ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker container rm -f $CONTAINER_NAME || true"
-#    - ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker run -d -p $PORT:$PORT --name $CONTAINER_NAME $DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG"
-#  environment:
-#    name: production
-#    url: http://35.240.198.195
-#  only:
-#    - develop
+deploy to server:
+  image: alpine:latest
+  stage: deploy
+  tags:
+    - deployment
+  script:
+    - chmod og= $ID_RSA
+    - apk update && apk add openssh-client
+    - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD"
+    - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker pull $DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG"
+    - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker container rm -f $CONTAINER_NAME || true"
+    - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker run -d -p $PORT:$PORT --name $CONTAINER_NAME $DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG"
+  environment:
+    name: production
+    url: http://35.240.198.195
+  only:
+    - master
