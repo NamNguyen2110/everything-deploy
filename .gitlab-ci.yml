@@ -10,7 +10,7 @@ cache:
 variables:
   DOCKER_IMAGE_NAME: "namnguyen2110/test-deploy"
   DOCKER_IMAGE_TAG: "1.0"
-  PORT: 9097
+  PORT: 8081
 build jar:
   image: maven:3-openjdk-11
   stage: build
