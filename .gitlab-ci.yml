@@ -52,6 +52,6 @@ deploy to server:
     - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker run -d -p $PORT:$PORT --name $CONTAINER_NAME $DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG"
   environment:
     name: production
-    url: http://35.240.198.195
+    url: http://178.128.100.215
   only:
     - master
