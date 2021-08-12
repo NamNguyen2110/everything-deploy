@@ -12,7 +12,7 @@ variables:
   MAVEN_CLI_OPTS: "--batch-mode --errors --fail-at-end --show-version -DinstallAtEnd=true -DdeployAtEnd=true"
   DOCKER_IMAGE_NAME: "namnguyen2110/test-deploy"
   DOCKER_IMAGE_TAG: "1.0"
-  PORT: 8081
+  PORT: 8084
   CONTAINER_NAME: "everything-deploy"
 build jar:
   image: maven:3-openjdk-11
