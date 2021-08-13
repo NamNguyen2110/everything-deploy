@@ -8,5 +8,13 @@ pipeline {
                 }
             }
         }
+        stage('Test') {
+             steps {
+                 withMaven(maven: 'mvn') {
+                     sh 'mvn test'
+                 }
+             }
+        }
+
     }
 }
