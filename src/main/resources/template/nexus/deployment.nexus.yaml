@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nexus
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nexus
+  template:
+    metadata:
+      labels:
+        app: nexus
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: master
+      securityContext:
+        fsGroup: 200
+        runAsUser: 0
+      volumes:
+      - name: vol-nexus
+        persistentVolumeClaim:
+          claimName: pvc-nexus
+      containers:
+      - name: nexus
+        image: sonatype/nexus3:3.18.1
+        resources: {}
+        ports:
+        - name: nx-resource
+          containerPort: 8081
+        - name: nx-docker-repo
+          containerPort: 8297
+        volumeMounts:
+        - mountPath: "/nexus-data"
+          name: vol-nexus
