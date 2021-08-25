@@ -6,7 +6,7 @@ pipeline {
           PORT               = '8084'
           CONTAINER_NAME     = 'everything-deploy'
           REMOTE_USER        = 'root'
-          REMOTE_HOST          = '167.71.222.10'
+          REMOTE_HOST        = '167.71.222.10'
     }
     tools {dockerTool  "docker" }
     stages {
@@ -33,7 +33,7 @@ pipeline {
         }
         stage('Deploy to server') {
             steps {
-                sshagent(['ssh-key']) {
+                sshagent(['ssh-remote']) {
                        sh 'ssh -o StrictHostKeyChecking=no -l $REMOTE_USER $REMOTE_HOST touch index.html'
 //                     sh 'ssh -o StrictHostKeyChecking=no -l $REMOTE_USER $REMOTE_HOST docker image rm -f $DOCKER_IMAGE_NAME:$DOCKER_TAG 2> /dev/null'
 //                     sh 'ssh -o StrictHostKeyChecking=no -l $REMOTE_USER $REMOTE_HOST docker pull $DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG'
