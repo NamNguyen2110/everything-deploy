@@ -29,5 +29,15 @@ pipeline {
                 }
             }
         }
+        stage('Deploy to server') {
+            steps {
+                sshagent(['ssh-key']) {
+                    sh 'ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker image rm -f $DOCKER_IMAGE_NAME:$DOCKER_TAG 2> /dev/null"'
+                    sh 'ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker pull $DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG"'
+                    sh 'ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker container rm -f $CONTAINER_NAME || true"'
+                    sh 'ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker run -d -p $PORT:$PORT --name $CONTAINER_NAME $DOCKER_IMAGE_NAME:$DOCKER_TAG"'
+                }
+            }
+        }
     }
 }
