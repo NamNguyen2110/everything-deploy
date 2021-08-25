@@ -1,8 +1,8 @@
 pipeline {
     agent any
     environment {
-          DOCKER_IMAGE_NAME  = 'namnguyen2110/test-deploy'
-          DOCKER_IMAGE_TAG   = '1.0.0'
+          DOCKER_IMAGE_NAME  = 'namnguyen2110/everything-deploy'
+          DOCKER_TAG         = '${GIT_BRANCH.tokenize('/').pop()}-${GIT_COMMIT.substring(0,7)}'
           PORT               = '8084'
           CONTAINER_NAME     = 'everything-deploy'
     }
@@ -19,16 +19,15 @@ pipeline {
         stage('Build image') {
             steps {
                      unstash 'targetfiles'
-                     sh 'docker build --cache-from ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} --tag ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} .'
+                     sh 'docker build --cache-from ${DOCKER_IMAGE_NAME}:${DOCKER_TAG} --tag ${DOCKER_IMAGE_NAME}:${DOCKER_TAG} .'
             }
         }
-//         stage('Push to Docker hub') {
-//             steps {
-//                 withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId:'DOCKER_REGISTRY', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-//                     sh 'docker login -u $USERNAME -p $PASSWORD'
-//                     sh 'docker push $DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG'
-//                 }
-//             }
-//         }
+        stage('Push to Docker hub') {
+            steps {
+                withDockerRegistry(credentialsId: 'dockerhub', url: 'https://index.docker.io/v1/') {
+                    sh 'docker push $DOCKER_IMAGE_NAME:$DOCKER_TAG'
+                }
+            }
+        }
     }
 }
