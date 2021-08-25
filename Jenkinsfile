@@ -6,23 +6,19 @@ pipeline {
           PORT               = '8084'
           CONTAINER_NAME     = 'everything-deploy'
     }
+    tools {dockerTool  "docker" }
     stages {
         stage('Build jar') {
             steps {
                 withMaven(maven: 'mvn') {
                     sh 'mvn clean package -DskipTests=true'
+                    stash includes: 'target/*.jar', name: 'targetfiles'
                 }
             }
         }
-        stage('Test') {
-             steps {
-                 withMaven(maven: 'mvn') {
-                     sh 'mvn test'
-                 }
-             }
-        }
         stage('Build image') {
             steps {
+                     unstash 'targetfiles'
                      sh 'docker build --cache-from ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} --tag ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} .'
             }
         }
