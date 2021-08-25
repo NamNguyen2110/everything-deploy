@@ -15,6 +15,6 @@ public class TestJenkinsApplication {
 
     @GetMapping("")
     public String helloWord() {
-        return "Hello world";
+        return "Hello xin chào a Tuyến";
     }
 }
