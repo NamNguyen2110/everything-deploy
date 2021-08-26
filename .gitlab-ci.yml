@@ -1,56 +1,56 @@
-#stages:
-#  - build
-#  - test
-#  - publish
-#  - deploy
-#  - clean
-#cache:
-#  paths:
-#    - .m2/repository
-#variables:
-#  MAVEN_OPTS: "-Dhttps.protocols=TLSv1.2 -Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN -Dorg.slf4j.simpleLogger.showDateTime=true -Djava.awt.headless=true"
-#  MAVEN_CLI_OPTS: "--batch-mode --errors --fail-at-end --show-version -DinstallAtEnd=true -DdeployAtEnd=true"
-#  DOCKER_IMAGE_NAME: "namnguyen2110/test-deploy"
-#  DOCKER_IMAGE_TAG: "1.0.0"
-#  PORT: 8084
-#  CONTAINER_NAME: "everything-deploy"
-#build jar:
-#  image: maven:3-openjdk-11
-#  stage: build
-#  script:
-#    - mvn clean package ${MAVEN_OPTS}
-#  artifacts:
-#    paths:
-#      - target/*.jar
-#run unit test:
-#  image: maven:3-openjdk-11
-#  stage: test
-#  script:
-#    - mvn $MAVEN_CLI_OPTS test-compile
-#build image:
-#  image: docker:latest
-#  stage: publish
-#  services:
-#    - docker:dind
-#  script:
-#    - docker build --cache-from ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} --tag ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} .
-#    - docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
-#    - docker push $DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG
-#deploy to server:
-#  image: alpine:latest
-#  stage: deploy
-#  tags:
-#    - deployment
-#  script:
-#    - chmod og= $ID_RSA
-#    - apk update && apk add openssh-client
-#    - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD"
-#    - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker image rm -f $DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG 2> /dev/null"
-#    - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker pull $DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG"
-#    - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker container rm -f $CONTAINER_NAME || true"
-#    - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker run -d -p $PORT:$PORT --name $CONTAINER_NAME $DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG"
-#  environment:
-#    name: production
-#    url: http://178.128.100.215
-#  only:
-#    - master
+stages:
+  - build
+  - test
+  - publish
+  - deploy
+  - clean
+cache:
+  paths:
+    - .m2/repository
+variables:
+  MAVEN_OPTS: "-Dhttps.protocols=TLSv1.2 -Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN -Dorg.slf4j.simpleLogger.showDateTime=true -Djava.awt.headless=true"
+  MAVEN_CLI_OPTS: "--batch-mode --errors --fail-at-end --show-version -DinstallAtEnd=true -DdeployAtEnd=true"
+  DOCKER_IMAGE_NAME: "namnguyen2110/test-deploy"
+  DOCKER_IMAGE_TAG: "1.0.0"
+  PORT: 8084
+  CONTAINER_NAME: "everything-deploy"
+build jar:
+  image: maven:3-openjdk-11
+  stage: build
+  script:
+    - mvn clean package ${MAVEN_OPTS}
+  artifacts:
+    paths:
+      - target/*.jar
+run unit test:
+  image: maven:3-openjdk-11
+  stage: test
+  script:
+    - mvn $MAVEN_CLI_OPTS test-compile
+build image:
+  image: docker:latest
+  stage: publish
+  services:
+    - docker:dind
+  script:
+    - docker build --cache-from ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} --tag ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} .
+    - docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+    - docker push $DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG
+deploy to server:
+  image: alpine:latest
+  stage: deploy
+  tags:
+    - deployment
+  script:
+    - chmod og= $ID_RSA
+    - apk update && apk add openssh-client
+    - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD"
+    - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker image rm -f $DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG 2> /dev/null"
+    - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker pull $DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG"
+    - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker container rm -f $CONTAINER_NAME || true"
+    - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker run -d -p $PORT:$PORT --name $CONTAINER_NAME $DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG"
+  environment:
+    name: production
+    url: http://178.128.100.215
+  only:
+    - master

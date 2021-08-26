@@ -2,7 +2,7 @@ pipeline {
     agent any
     environment {
           DOCKER_IMAGE_NAME  = 'namnguyen2110/everything-deploy'
-          IMAGE_TAG         = '1.0.1'
+          IMAGE_TAG          = '1.0.1'
           PORT               = '8084'
           CONTAINER_NAME     = 'everything-deploy'
           REMOTE_USER        = 'root'
@@ -16,6 +16,13 @@ pipeline {
                     sh 'mvn clean package -DskipTests=true'
                     stash includes: 'target/*.jar', name: 'targetfiles'
                 }
+            }
+        }
+        stage('Test') {
+            steps {
+                 withMaven(maven: 'mvn') {
+                     sh 'mvn test'
+                 }
             }
         }
         stage('Build image') {
